@@ -119,6 +119,7 @@
 # runpod.serverless.start({"handler": handler})
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
 import subprocess
 import os
 import time
@@ -220,9 +221,9 @@ async def health_check():
     if worker.process is None or worker.process.poll() is not None:
         raise HTTPException(status_code=500, detail="Server is unhealthy")
     if not worker.initialized:
-        return {"status": "initializing"}
+        return JSONResponse(content={"status": "ready"}, status_code=200)
     if worker.check_ready():
-        return {"status": "ready"}
+        return JSONResponse(content={"status": "initializing"}, status_code=204)
     raise HTTPException(status_code=500, detail="Server is unhealthy")
 
 @app.post("/generate")
@@ -231,4 +232,4 @@ async def generate(request: GenerationRequest):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=5000)
+    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT_HEALTH", "5000")))
