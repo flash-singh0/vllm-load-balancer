@@ -221,9 +221,9 @@ async def health_check():
     if worker.process is None or worker.process.poll() is not None:
         raise HTTPException(status_code=500, detail="Server is unhealthy")
     if not worker.initialized:
-        return JSONResponse(content={"status": "ready"}, status_code=200)
+        return JSONResponse(content={"status": "ready"}, status_code=204)
     if worker.check_ready():
-        return JSONResponse(content={"status": "initializing"}, status_code=204)
+        return JSONResponse(content={"status": "initializing"}, status_code=200)
     raise HTTPException(status_code=500, detail="Server is unhealthy")
 
 @app.post("/generate")
